@@ -91,18 +91,18 @@ This will be addressed in a future version of Sticky List.
 There was a bug in the Gravity Forms api that prevented fields from getting saved in the entry. The bug was fixed in version 1.8.19.2 of Gravity Forms. Make sure you use an <a href="http://www.gravityhelp.com/downloads/">updated version</a>. If you are not able to update Gravity Forms you can easily apply the patch manually to `plugins/gravityforms/includes/api.php`
 
 On line `510`, remove 
-```
+`
 if (empty($entry_id))
     $entry_id = $entry["id"];
-```
+`
 and replace with
-```
+`
 if (empty($entry_id)) {
     $entry_id = $entry["id"];
 }else{
     $entry["id"] = $entry_id;
 }
-```
+`
 
 == Changelog ==
 
