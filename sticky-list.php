@@ -175,6 +175,11 @@ if (class_exists("GFForms")) {
                 
                 $current_user = wp_get_current_user();
                 $current_user_id = $current_user->ID;
+
+                
+                $sorting = array();
+                $paging = array('offset' => 0, 'page_size' => 9999 );
+
                    
                 
                 
@@ -182,21 +187,22 @@ if (class_exists("GFForms")) {
 
                     $search_criteria["field_filters"][] = array("key" => "status", "value" => "active");
                     $search_criteria["field_filters"][] = array("key" => "created_by", "value" => $current_user_id);
-                    $entries = GFAPI::get_entries($form_id, $search_criteria);
+
+                    $entries = GFAPI::get_entries($form_id, $search_criteria, $sorting, $paging);
                 
                 
                 }elseif($show_entries_to === "loggedin"){
                     
                     if(is_user_logged_in()) {
                         $search_criteria["field_filters"][] = array("key" => "status", "value" => "active");
-                        $entries = GFAPI::get_entries($form_id, $search_criteria);
+                        $entries = GFAPI::get_entries($form_id, $search_criteria, $sorting, $paging);
                     }
                 
                 
                 }else{
                 
                     $search_criteria["field_filters"][] = array("key" => "status", "value" => "active");
-                    $entries = GFAPI::get_entries($form_id, $search_criteria);
+                    $entries = GFAPI::get_entries($form_id, $search_criteria, $sorting, $paging);
                 }
 
                 
