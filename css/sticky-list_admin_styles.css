@@ -1,0 +1,7 @@
+tr + tr {
+    display: none;
+}
+.show,
+tr:last-child { 
+    display: table-row;
+}
