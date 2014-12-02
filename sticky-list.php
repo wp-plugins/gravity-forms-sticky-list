@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Sticky List
 Plugin URI: https://github.com/13pixlar/sticky-list
 Description: List and edit submitted entries from the front end
-Version: 1.0.2
+Version: 1.0.3
 Author: 13pixar
 Author URI: http://13pixlar.se
 */
@@ -19,7 +19,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.0.2";
+        protected $_version = "1.0.3";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -206,7 +206,7 @@ if (class_exists("GFForms")) {
                 }
 
                 
-                if($entries) {
+                if(isset($entries)) {
                     
                     
                     $list_html = "<div id='sticky-list-wrapper'>";
@@ -274,7 +274,7 @@ if (class_exists("GFForms")) {
                                 if(is_array($field_value)) {
 
                                     
-                                    asort($field_value);
+                                    ksort($field_value);
                                    
                                     $field_values = "";
 
@@ -981,8 +981,6 @@ if (class_exists("GFForms")) {
         }
 
 
-
-
         /**
          * Add new confirmation settings
          *
@@ -1047,10 +1045,10 @@ if (class_exists("GFForms")) {
             $new_confirmation = "";
 
             
-            if($_POST["action"] == NULL) {
+            if(!isset($_POST["action"])) {
                 $_POST["action"] = "new";
             }
-            
+
             
             foreach ($confirmations as $confirmation) {
 
@@ -1063,17 +1061,17 @@ if (class_exists("GFForms")) {
 
                     
                     }else{
-                        $redirect = true;
+                        $new_confirmation = $original_confirmation;
+                        break;
                     }
-                }                
+                }             
             }
-            
-            
-            if($redirect != true) { 
-                return $new_confirmation;
-            }else{
-                return $original_confirmation;
+
+            if($new_confirmation == "") {
+                $new_confirmation = $original_confirmation;
             }
+
+            return $new_confirmation;
         }
     }
 
