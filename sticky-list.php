@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Sticky List
 Plugin URI: https://github.com/13pixlar/sticky-list
 Description: List and edit submitted entries from the front end
-Version: 1.0.3
+Version: 1.0.4
 Author: 13pixar
 Author URI: http://13pixlar.se
 */
@@ -19,7 +19,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.0.3";
+        protected $_version = "1.0.4";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -166,6 +166,9 @@ if (class_exists("GFForms")) {
             if(isset($settings["enable_delete_label"])) $enable_delete_label = $settings["enable_delete_label"]; else $enable_delete_label = "";
             if(isset($settings["action_column_header"])) $action_column_header = $settings["action_column_header"]; else $action_column_header = "";
             if(isset($settings["embedd_page"])) $embedd_page = $settings["embedd_page"]; else $embedd_page = "";
+
+            
+            if(isset($settings["custom_embedd_page"]) && $settings["custom_embedd_page"] != "") $embedd_page = $settings["custom_embedd_page"];
             if(isset($settings["enable_sort"])) $enable_sort = $settings["enable_sort"]; else $enable_sort = "";
             if(isset($settings["enable_search"])) $enable_search = $settings["enable_search"]; else $enable_search = "";
             
@@ -653,7 +656,7 @@ if (class_exists("GFForms")) {
             <?php
 
             
-            $args = array( 'posts_per_page' => 999, 'post_type' => 'any','post_status' => 'any'); 
+            $args = array( 'posts_per_page' => 999999, 'post_type' => 'any', 'post_status' => 'any', 'orderby' => 'title'); 
             $posts = get_posts( $args );
             $posts_array = array();
             foreach ($posts as $post) {
@@ -714,6 +717,13 @@ if (class_exists("GFForms")) {
                             "name"    => "embedd_page",
                             "tooltip" => __('The page/post where the form is embedded. This page will be used to view/edit the entry','sticky-list'),
                             "choices" => $posts_array
+                        ),
+                        array(
+                            "label"   => __('Custom url','sticky-list'),
+                            "type"    => "text",
+                            "name"    => "custom_embedd_page",
+                            "tooltip" => __('Manually input the url of the form. This overrides the selection made in the dropdown above. Use this if you cannot find the page/post in the list.','sticky-list'),
+                            "class"   => "medium"
                         ),
                         array(
                             "label"   => __('View entries','sticky-list'),
