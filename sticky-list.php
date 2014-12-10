@@ -212,7 +212,7 @@ if (class_exists("GFForms")) {
                 }
 
                 
-                if(isset($entries)) {
+                if(!empty($entries)) {
                     
                     
                     $list_html = "<div id='sticky-list-wrapper'>";
