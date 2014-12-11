@@ -3,14 +3,13 @@
 Plugin Name: Gravity Forms Sticky List
 Plugin URI: https://github.com/13pixlar/sticky-list
 Description: List and edit submitted entries from the front end
-Version: 1.0.5
+Version: 1.0.6
 Author: 13pixar
 Author URI: http://13pixlar.se
 */
 
 
 /* Todo
- * Fix: Template tags in confirmations
  * New: Support for edit posts
  * New: Support for file uploads
  * New: Support for multi page forms
@@ -22,7 +21,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.0.4";
+        protected $_version = "1.0.6";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -158,22 +157,34 @@ if (class_exists("GFForms")) {
             $form = GFAPI::get_form($form_id);
 
             
+            function get_sticky_setting($setting_key, $settings) {
+                if(isset($settings[$setting_key])) {
+                    $setting = $settings[$setting_key];
+                }else{
+                    $setting = "";
+                }
+                return $setting;
+            }
+
+            
             $settings = $this->get_form_settings($form);
-            if(isset($settings["enable_list"])) $enable_list = $settings["enable_list"]; else $enable_list = "";
-            if(isset($settings["show_entries_to"])) $show_entries_to = $settings["show_entries_to"]; else  $show_entries_to = "";
-            if(isset($settings["enable_view"])) $enable_view = $settings["enable_view"]; else $enable_view = "";
-            if(isset($settings["enable_view_label"])) $enable_view_label = $settings["enable_view_label"]; else $enable_view_label = "";
-            if(isset($settings["enable_edit"])) $enable_edit = $settings["enable_edit"]; else $enable_edit = "";
-            if(isset($settings["enable_edit_label"])) $enable_edit_label = $settings["enable_edit_label"]; else $enable_edit_label = "";
-            if(isset($settings["enable_delete"])) $enable_delete = $settings["enable_delete"]; else $enable_delete = "";
-            if(isset($settings["enable_delete_label"])) $enable_delete_label = $settings["enable_delete_label"]; else $enable_delete_label = "";
-            if(isset($settings["action_column_header"])) $action_column_header = $settings["action_column_header"]; else $action_column_header = "";
-            if(isset($settings["embedd_page"])) $embedd_page = $settings["embedd_page"]; else $embedd_page = "";
+
+            
+            $enable_list            = get_sticky_setting("enable_list", $settings);
+            $show_entries_to        = get_sticky_setting("show_entries_to", $settings);
+            $enable_view            = get_sticky_setting("enable_view", $settings);
+            $enable_view_label      = get_sticky_setting("enable_view_label", $settings);
+            $enable_edit            = get_sticky_setting("enable_edit", $settings);
+            $enable_edit_label      = get_sticky_setting("enable_edit_label", $settings);
+            $enable_delete          = get_sticky_setting("enable_delete", $settings);
+            $enable_delete_label    = get_sticky_setting("enable_delete_label", $settings);
+            $action_column_header   = get_sticky_setting("action_column_header", $settings);
+            $enable_sort            = get_sticky_setting("enable_sort", $settings);
+            $enable_search          = get_sticky_setting("enable_search", $settings);
+            $embedd_page            = get_sticky_setting("embedd_page", $settings);
 
             
             if(isset($settings["custom_embedd_page"]) && $settings["custom_embedd_page"] != "") $embedd_page = $settings["custom_embedd_page"];
-            if(isset($settings["enable_sort"])) $enable_sort = $settings["enable_sort"]; else $enable_sort = "";
-            if(isset($settings["enable_search"])) $enable_search = $settings["enable_search"]; else $enable_search = "";
             
             
             if($enable_list){
@@ -374,6 +385,7 @@ if (class_exists("GFForms")) {
                         $delete_failed = __('Delete failed','sticky-list');
 
                         $list_html .= "
+                            <img src='$ajax_spinner' style='display: none;'>
                             <script>
                             jQuery(document).ready(function($) {
                                 $('.sticky-list-delete').click(function(event) {
@@ -404,7 +416,7 @@ if (class_exists("GFForms")) {
                 
                 
                 }else{
-                    $list_html = $settings["empty_list_text"];
+                    $list_html = $settings["empty_list_text"] . "<br>";
                 }
                                     
                 return $list_html;
@@ -1079,9 +1091,8 @@ if (class_exists("GFForms")) {
                 }             
             }
 
-            if($new_confirmation == "") {
-                $new_confirmation = $original_confirmation;
-            }
+            
+            $new_confirmation = GFCommon::replace_variables($new_confirmation, $form, $lead);
 
             return $new_confirmation;
         }
