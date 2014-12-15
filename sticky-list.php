@@ -32,7 +32,7 @@ if (class_exists("GFForms")) {
         public function init(){
             parent::init();
 
-            
+            // 
             $this->stickylist_localize();
             
             
@@ -69,6 +69,21 @@ if (class_exists("GFForms")) {
             add_action("gform_confirmation_ui_settings", array($this, "stickylist_gform_confirmation_ui_settings"), 10, 3 );
             add_action("gform_pre_confirmation_save", array($this, "stickylist_gform_pre_confirmation_save"), 10, 2 );
             add_filter("gform_confirmation", array($this, "stickylist_gform_confirmation"), 10, 4);
+
+            
+            add_filter("gform_post_data", array( $this, "stickylist_gform_post_data" ), 10, 3 );
+        }
+
+
+        /**
+         * Sticky List update Wordpress post
+         *
+         */
+        function stickylist_gform_post_data( $post_data, $form, $entry ) {
+
+            
+            if (isset($_POST["post_id"])) $post_data['ID'] = $_POST["post_id"];
+            return ( $post_data );
         }
 
         
@@ -349,7 +364,13 @@ if (class_exists("GFForms")) {
                                         $list_html .= "
                                             <button class='sticky-list-delete submit'>$enable_delete_label</button>
                                             <input type='hidden' name='delete_id' class='sticky-list-delete-id' value='$entry_id'>
-                                        ";                                        
+                                        ";
+
+                                        
+                                        if($entry["post_id"] != null ) {
+                                            $delete_post_id = $entry["post_id"];
+                                            $list_html .= "<input type='hidden' name='delete_post_id' class='sticky-list-delete-post-id' value='$delete_post_id'>";
+                                        }
                                     }
                                     ?>
                                     
@@ -391,11 +412,12 @@ if (class_exists("GFForms")) {
                                 $('.sticky-list-delete').click(function(event) {
                                     
                                     var delete_id = $(this).siblings('.sticky-list-delete-id').val();
+                                    var delete_post_id = $(this).siblings('.sticky-list-delete-post-id').val();
                                     var current_button = $(this);
                                     var current_row = current_button.parent().parent();
                                     current_button.html('<img src=\'$ajax_spinner\'>');
                                     
-                                    $.post( '', { mode: 'delete', delete_id: delete_id, form_id: '$form_id' })
+                                    $.post( '', { mode: 'delete', delete_id: delete_id, delete_post_id: delete_post_id, form_id: '$form_id' })
                                     .done(function() {
                                         current_button.html('');
                                         current_row.css({   
@@ -446,6 +468,105 @@ if (class_exists("GFForms")) {
 
 
         /**
+         * Performs actions when entrys are clicked in the list
+         *
+         */
+        public function pre_entry_action($form) {
+            
+            if( isset($_POST["mode"]) == "edit" || isset($_POST["mode"]) == "view" ) {
+
+                if($_POST["mode"] == "edit") {
+                    $edit_id = $_POST["edit_id"];
+                    $form_fields = GFAPI::get_entry($edit_id);
+                }
+
+                if($_POST["mode"] == "view") {
+                    $view_id = $_POST["view_id"];
+                    $form_fields = GFAPI::get_entry($view_id);
+                }
+        
+                
+                $current_user = wp_get_current_user();
+               
+                
+                if(!is_wp_error($form_fields) && $form_fields["status"] == "active") {
+                    
+                    
+                    if($form_fields["created_by"] == $current_user->ID || current_user_can('edit_others_posts') || $_POST["mode"] == "view") {
+                     
+                        
+                        foreach ($form_fields as $key => &$value) {
+
+                            
+                            if (is_numeric($key)) {
+
+                                
+                                if(is_array(maybe_unserialize($value))) {
+                                    $list = maybe_unserialize($value);
+                                    $value = iterator_to_array(new RecursiveIteratorIterator(new RecursiveArrayIterator($list)), FALSE);
+                                }
+
+                                $new_key = str_replace(".", "_", "input_$key");
+                                $form_fields[$new_key] = $form_fields[$key];
+                                unset($form_fields[$key]);                                                           
+                            }
+                        }
+                        
+                        
+                        $form_id = $form['id'];
+                        $form_fields["is_submit_$form_id"] = "1";
+
+                        
+                        $settings = $this->get_form_settings($form);
+
+                        
+                        if(isset($settings["update_text"])) $update_text = $settings["update_text"]; else $update_text = ""; ?>
+
+                        <!-- Add JQuery to help with view/update/delete -->
+                        <script>
+                        jQuery(document).ready(function($) {
+                            var thisForm = $('#gform_<?php echo $form_id;?>')
+
+                <?php   
+                        if($_POST["mode"] == "edit") { ?>
+
+                            thisForm.append('<input type="hidden" name="action" value="edit" />');
+                            thisForm.append('<input type="hidden" name="original_entry_id" value="<?php echo $edit_id; ?>" />');
+                            $("#gform_submit_button_<?php echo $form_id;?>").val('<?php echo $update_text; ?>');
+
+                <?php   }
+
+                        
+                        if($_POST["mode"] == "view") { ?>
+
+                            $("#gform_<?php echo $form_id;?> :input").attr("disabled", true);
+                            $("#gform_submit_button_<?php echo $form_id;?>").css('display', 'none');
+                <?php   }
+
+                        
+                        if($form_fields["post_id"] != null ) { ?>
+
+                            thisForm.append('<input type="hidden" name="post_id" value="<?php echo $form_fields["post_id"];?>" />');
+                <?php   } ?>
+
+                        });
+                        </script>
+                        <!-- End JQuery -->
+
+                <?php   
+                        $_POST = $form_fields;
+
+                        echo "on load:";
+                        var_dump($_POST);
+                    }
+                }
+            }
+            
+            return $form;
+        }
+
+
+        /**
          *  Editing entries
          *
          */ 
@@ -478,101 +599,12 @@ if (class_exists("GFForms")) {
                         
                         
                         if($success_uppdate) $success_delete = GFAPI::delete_entry($entry["id"]);
+
+                        echo "On save:";
+                        var_dump($entry);
                     }
                 }
             }
-        }
-
-
-        /**
-         * Performs actions when entrys are clicked in the list
-         *
-         */
-        public function pre_entry_action($form) {
-            
-            if( isset($_POST["mode"]) == "edit" || isset($_POST["mode"]) == "view" ) {
-
-                if($_POST["mode"] == "edit") {
-                    $edit_id = $_POST["edit_id"];
-                    $form_fields = GFAPI::get_entry($edit_id);
-                }
-
-                if($_POST["mode"] == "view") {
-                    $view_id = $_POST["view_id"];
-                    $form_fields = GFAPI::get_entry($view_id);
-                }
-                
-                
-                $current_user = wp_get_current_user();
-               
-                
-                if(!is_wp_error($form_fields) && $form_fields["status"] == "active") {
-                    
-                    
-                    if($form_fields["created_by"] == $current_user->ID || current_user_can('edit_others_posts') || $_POST["mode"] == "view") {
-                        
-                       
-                     
-                        
-                        foreach ($form_fields as $key => &$value) {
-
-                            
-                            if (is_numeric($key)) {
-
-                                
-                                if(is_array(maybe_unserialize($value))) {
-                                    $list = maybe_unserialize($value);
-                                    $value = iterator_to_array(new RecursiveIteratorIterator(new RecursiveArrayIterator($list)), FALSE);
-                                }
-
-                                $new_key = str_replace(".", "_", "input_$key");
-                                $form_fields[$new_key] = $form_fields[$key];
-                                unset($form_fields[$key]);                                                           
-                            }
-                        }
-                        
-                        
-                        $form_id = $form['id'];
-                        $form_fields["is_submit_$form_id"] = "1";
-
-                        
-                        $settings = $this->get_form_settings($form);
-
-                        
-                        if(isset($settings["update_text"])) $update_text = $settings["update_text"]; else $update_text = "";
-
-                        
-                        if($_POST["mode"] == "edit") { ?>
-
-                            <script>
-                            jQuery(document).ready(function($) {
-                                var thisForm = $('#gform_<?php echo $form_id;?>')
-                                thisForm.append('<input type="hidden" name="action" value="edit" />');
-                                thisForm.append('<input type="hidden" name="original_entry_id" value="<?php echo $edit_id; ?>" />');
-                                $("#gform_submit_button_<?php echo $form_id;?>").val('<?php echo $update_text; ?>');
-                            });
-                            </script>
-
-                <?php   }
-
-                        
-                        if($_POST["mode"] == "view") { ?>
-
-                            <script>
-                            jQuery(document).ready(function($) {
-                                $("#gform_<?php echo $form_id;?> :input").attr("disabled", true);
-                                $("#gform_submit_button_<?php echo $form_id;?>").css('display', 'none');
-                            });
-                            </script>
-                <?php   }
-
-                        
-                        $_POST = $form_fields;
-                    }
-                }
-            }
-            
-            return $form;
         }
 
 
@@ -609,16 +641,33 @@ if (class_exists("GFForms")) {
 
                         
                         if($entry["created_by"] == $current_user->ID || current_user_can('delete_others_posts' )) {
+
+                            
+                            if($_POST["delete_post_id"] != null) {
+                                $delete_post_id = $_POST["delete_post_id"];
+                            }else{
+                                $delete_post_id = "";
+                            }
                            
                             
                             if($delete_type == "trash") { 
                                 $entry["status"] = "trash";
                                 $success = GFAPI::update_entry($entry, $delete_id);
+
+                                
+                                if($delete_post_id != "") {
+                                    wp_delete_post( $delete_post_id, false );
+                                }
                             }
 
                             
                             if($delete_type == "permanent") {
                                 $success = GFAPI::delete_entry($delete_id);
+
+                                
+                                if($delete_post_id != "") {
+                                     wp_delete_post( $delete_post_id, true );
+                                }
                             }
 
                             
@@ -839,7 +888,8 @@ if (class_exists("GFForms")) {
                             "type"    => "text",
                             "name"    => "empty_list_text",
                             "tooltip" => __('Text that is shown if the list is empty','sticky-list'),
-                            "class"   => "medium"  
+                            "class"   => "medium",
+                            "default_value" => __('The list is empty. You can edit or remove this text in settings','sticky-list')
                         ),
                         array(
                             "label"   => __('List sort','sticky-list'),
@@ -1063,38 +1113,58 @@ if (class_exists("GFForms")) {
          *
          */
         function stickylist_gform_confirmation($original_confirmation, $form, $lead, $ajax){
-            
-            
-            $confirmations = $form["confirmations"];
-            $new_confirmation = "";
 
             
-            if(!isset($_POST["action"])) {
-                $_POST["action"] = "new";
-            }
+            $settings = $this->get_form_settings($form);
 
             
-            foreach ($confirmations as $confirmation) {
+            if(isset($settings["enable_list"])) {
+            
+                
+                $confirmations = $form["confirmations"];
+                $new_confirmation = "";
 
                 
-                if( $confirmation["stickylist_confirmation_type"] == $_POST["action"] || $confirmation["stickylist_confirmation_type"] == "all" || !isset($confirmation["stickylist_confirmation_type"])) {
-                    
-                    
-                    if($confirmation["type"] == "message") {
-                        $new_confirmation .= $confirmation["message"] . " ";
+                if(!isset($_POST["action"])) {
+                    $_POST["action"] = "new";
+                }
+
+                
+                foreach ($confirmations as $confirmation) {
 
                     
+                    if (isset($confirmation["stickylist_confirmation_type"])) {
+                        $confirmation_type = $confirmation["stickylist_confirmation_type"];
                     }else{
-                        $new_confirmation = $original_confirmation;
-                        break;
+                        $confirmation_type = "";
                     }
-                }             
+
+                    
+                    if( $confirmation_type == $_POST["action"] || $confirmation_type == "all" || !isset($confirmation["stickylist_confirmation_type"])) {
+                        
+                        
+                        if($confirmation["type"] == "message") {
+                            $new_confirmation .= $confirmation["message"] . " ";
+
+                        
+                        }else{
+                            $new_confirmation = $original_confirmation;
+                            break;
+                        }
+                    }             
+                }
+
+                
+                $new_confirmation = GFCommon::replace_variables($new_confirmation, $form, $lead);
+
+                return $new_confirmation;
+
+            }else{
+
+                
+                return $original_confirmation;
             }
 
-            
-            $new_confirmation = GFCommon::replace_variables($new_confirmation, $form, $lead);
-
-            return $new_confirmation;
         }
     }
 
