@@ -32,7 +32,7 @@ if (class_exists("GFForms")) {
         public function init(){
             parent::init();
 
-            // 
+            
             $this->stickylist_localize();
             
             
@@ -530,6 +530,9 @@ if (class_exists("GFForms")) {
                                 $uploads[] = $fvalue["id"];
                             }
                         }
+
+                        
+                        $upload_inputs = "";
                      
                         
                         foreach ($form_fields as $key => &$value) {
