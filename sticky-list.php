@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Sticky List
 Plugin URI: https://github.com/13pixlar/sticky-list
 Description: List and edit submitted entries from the front end
-Version: 1.1
+Version: 1.1.1
 Author: 13pixar
 Author URI: http://13pixlar.se
 */
@@ -21,7 +21,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.1";
+        protected $_version = "1.1.1";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -152,10 +152,14 @@ if (class_exists("GFForms")) {
         function stickylist_shortcode( $atts ) {
             $shortcode_id = shortcode_atts( array(
                 'id' => '1',
+                'user' => '',
             ), $atts );
 
             
             $form_id = $shortcode_id['id'];
+
+            
+            $user_id = $shortcode_id['user'];
 
             
             $form = GFAPI::get_form($form_id);
@@ -198,8 +202,12 @@ if (class_exists("GFForms")) {
             if($enable_list){
 
                 
-                $current_user = wp_get_current_user();
-                $current_user_id = $current_user->ID;
+                if($user_id != "") {
+                    $current_user_id = $user_id;
+                }else{
+                    $current_user = wp_get_current_user();
+                    $current_user_id = $current_user->ID;    
+                }
 
                 //Set max nr of entries to be shown
                 if($max_entries == "") { $max_entries = 999999; }
@@ -530,9 +538,6 @@ if (class_exists("GFForms")) {
                                 $uploads[] = $fvalue["id"];
                             }
                         }
-
-                        
-                        $upload_inputs = "";
                      
                         
                         foreach ($form_fields as $key => &$value) {
