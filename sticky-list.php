@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Sticky List
 Plugin URI: https://github.com/13pixlar/sticky-list
 Description: List and edit submitted entries from the front end
-Version: 1.1.2
+Version: 1.1.3
 Author: 13pixar
 Author URI: http://13pixlar.se
 */
@@ -21,7 +21,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.1.2";
+        protected $_version = "1.1.3";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -69,6 +69,9 @@ if (class_exists("GFForms")) {
 
             
             add_filter("gform_post_data", array( $this, "stickylist_gform_post_data" ), 10, 3 );
+
+            
+            add_filter('gform_validation', array( $this, "stickylist_validate_fileupload" ) );
         }
 
 
@@ -316,6 +319,9 @@ if (class_exists("GFForms")) {
                                 }
 
                                 
+                                if($field->type == "post_custom_field" && $field->inputType == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
+
+                                
                                 if(is_array($field_value)) {
 
                                     
@@ -330,9 +336,8 @@ if (class_exists("GFForms")) {
                                 }
 
                                 
-                                elseif ($field["type"] == "fileupload" || $field["type"] == "post_image") {
+                                elseif ($field["type"] == "fileupload" || $field["type"] == "post_image" || $custom_file_upload = true ) {
 
-                                    
                                     $field_value = strtok($field_value, "|");
                                     $file_name = basename($field_value);
                                     $list_html .= "<td class='sort-$i $nowrap'><a href='$field_value'>$file_name</a></td>";
@@ -533,11 +538,16 @@ if (class_exists("GFForms")) {
                     if($form_fields["created_by"] == $current_user->ID || current_user_can('edit_others_posts') || $_POST["mode"] == "view") {
 
                         
-                        foreach ($form["fields"] as $fkey => $fvalue) {
+                        foreach ($form["fields"] as $fkey => &$fvalue) {
                             if($fvalue["type"] == 'fileupload' || $fvalue["type"] == "post_image") {
+                                $uploads[] = $fvalue["id"];
+                            }elseif ($fvalue["type"] == "post_custom_field" && $fvalue["inputType"] == "fileupload") {
                                 $uploads[] = $fvalue["id"];
                             }
                         }
+
+                        
+                        $upload_inputs = "";
                      
                         
                         foreach ($form_fields as $key => &$value) {
@@ -600,7 +610,8 @@ if (class_exists("GFForms")) {
                         if($_POST["mode"] == "edit") { ?>
 
                             thisForm.append('<input type="hidden" name="action" value="edit" />');
-                            thisForm.append('<input type="hidden" name="original_entry_id" value="<?php echo $edit_id; ?>" />');
+                            thisForm.append('<input type="hidden" name="edit_id" value="<?php echo $edit_id; ?>" />');
+                            thisForm.append('<input type="hidden" name="mode" value="edit" />');
                             $("#gform_submit_button_<?php echo $form_id;?>").val('<?php echo $update_text; ?>');
 
                 <?php   }
@@ -648,7 +659,7 @@ if (class_exists("GFForms")) {
             if(isset($_POST["action"]) && $_POST["action"] == "edit") {
 
                 
-                $original_entry_id = $_POST["original_entry_id"];
+                $original_entry_id = $_POST["edit_id"];
 
                 
                 $current_user = wp_get_current_user();
@@ -697,6 +708,50 @@ if (class_exists("GFForms")) {
 
 
         /**
+         * Validate required file input fields
+         *
+         */
+        function stickylist_validate_fileupload($validation_result) {
+
+            
+            $form = $validation_result["form"];
+
+            foreach($form['fields'] as &$field){
+
+                
+
+                if($field->type == "post_custom_field" && $field->inputType == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
+                if($field->type == 'fileupload' || $field->type == "post_image"|| $custom_file_upload == true) {
+                    
+                    
+                    if(rgpost("file_{$field['id']}") != "") {
+                        
+                        
+                        $field["isRequired"] = 0;                     
+                        $field['failed_validation'] = false;
+
+                        
+                        $validation_result["is_valid"] = true;
+                    }
+                }
+            }
+
+            
+            $validation_result['form'] = $form;
+
+            
+            foreach($form['fields'] as &$field) {
+                if ($field['failed_validation'] == true) {
+                    $validation_result["is_valid"] = false;
+                    break;
+                }
+            }
+
+            return $validation_result;
+        }
+
+
+        /**
          * Sticky List update Wordpress post
          *
          */
@@ -706,6 +761,16 @@ if (class_exists("GFForms")) {
             if (isset($_POST["post_id"])) {
                 $post_id = $_POST["post_id"];
                 $post_data['ID'] = $post_id;
+
+                
+                delete_post_meta($post_id, "_gform-entry-id");
+                delete_post_meta($post_id, "_gform-form-id");
+                $form_fields = $form["fields"];
+                foreach ($form_fields as $form_field) {
+                    if($form_field->type == "post_custom_field") {
+                        delete_post_meta($post_id, $form_field->postCustomFieldName);
+                    }
+                }
 
                 
                 $this_post = get_post($post_id);
