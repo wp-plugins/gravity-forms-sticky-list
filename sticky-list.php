@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Sticky List
 Plugin URI: https://github.com/13pixlar/sticky-list
 Description: List and edit submitted entries from the front end
-Version: 1.1.4
+Version: 1.1.5
 Author: 13pixar
 Author URI: http://13pixlar.se
 */
@@ -21,7 +21,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.1.4";
+        protected $_version = "1.1.5";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -185,6 +185,8 @@ if (class_exists("GFForms")) {
             $show_entries_to        = get_sticky_setting("show_entries_to", $settings);
             $max_entries            = get_sticky_setting("max_entries", $settings);
             $enable_clickable       = get_sticky_setting("enable_clickable", $settings);
+            $enable_postlink        = get_sticky_setting("enable_postlink", $settings);
+            $link_label             = get_sticky_setting("link_label", $settings);
             $enable_view            = get_sticky_setting("enable_view", $settings);
             $enable_view_label      = get_sticky_setting("enable_view_label", $settings);
             $enable_edit            = get_sticky_setting("enable_edit", $settings);
@@ -286,7 +288,7 @@ if (class_exists("GFForms")) {
                     }
 
                     
-                    if($enable_view || $enable_edit || $enable_delete) {
+                    if($enable_view || $enable_edit || $enable_delete || $enable_postlink) {
 
                         $list_html .= "<th class='sticky-action'>$action_column_header</th>";
                     }
@@ -360,7 +362,7 @@ if (class_exists("GFForms")) {
                         }
 
                         
-                        if($enable_view || $enable_edit || $enable_delete){
+                        if($enable_view || $enable_edit || $enable_delete || $enable_postlink){
                             
                             $list_html .= "<td class='sticky-action'>";
 
@@ -405,9 +407,13 @@ if (class_exists("GFForms")) {
                                             $list_html .= "<input type='hidden' name='delete_post_id' class='sticky-list-delete-post-id' value='$delete_post_id'>";
                                         }
                                     }
-                                    ?>
-                                    
-                                    <?php
+                                }
+
+                                
+                                if($enable_postlink && $entry["post_id"] != NULL) {
+
+                                    $permalink = get_permalink($entry["post_id"]);
+                                    $list_html .= "<button onclick='document.location.href=\"$permalink\"'>$link_label</button>";
                                 }
 
                             $list_html .= "</td>";
@@ -986,6 +992,26 @@ if (class_exists("GFForms")) {
                                     "name"  => "enable_clickable"
                                 )
                             )
+                        ),
+                        array(
+                            "label"   => __('Link to post','sticky-list'),
+                            "type"    => "checkbox",
+                            "name"    => "enable_postlink",
+                            "tooltip" => __('Check this box to insert a link to the WordPress post in the action column. Only applicable if the list actually contains WordPress posts.','sticky-list'),
+                            "choices" => array(
+                                array(
+                                    "label" => __('Enabled','sticky-list'),
+                                    "name"  => "enable_postlink"
+                                )
+                            )
+                        ),
+                        array(
+                            "label"   => __('Link label','sticky-list'),
+                            "type"    => "text",
+                            "name"    => "link_label",
+                            "tooltip" => __('Label for the post link.','sticky-list'),
+                            "class"   => "small",
+                            "default_value" => __('Post','sticky-list')
                         ),
                         array(
                             "label"   => __('View entries','sticky-list'),
