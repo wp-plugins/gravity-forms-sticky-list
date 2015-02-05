@@ -27,12 +27,12 @@ if (class_exists("GFForms")) {
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
         protected $_full_path = __FILE__;
         protected $_title = "Gravity Forms Sticky List";
-        protected $_short_title = "List entries";
+        protected $_short_title = "Sticky List";
 
         public function init(){
             parent::init();
 
-            
+            // 
             $this->stickylist_localize();
             
             
@@ -103,7 +103,7 @@ if (class_exists("GFForms")) {
                 if($position == -1){ ?>
                     
                     <li class="list_setting">
-                        List
+                        Sticky List
                         <br>
                         <input type="checkbox" id="field_list_value" onclick="SetFieldProperty('stickylistField', this.checked);" /><label class="inline" for="field_list_value"><?php _e('Show in list', 'sticky-list'); ?> <?php gform_tooltip("form_field_list_value") ?></label>
                         <br>
