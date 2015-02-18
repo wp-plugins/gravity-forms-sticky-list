@@ -3,7 +3,7 @@
 Plugin Name: Gravity Forms Sticky List
 Plugin URI: https://github.com/13pixlar/sticky-list
 Description: List and edit submitted entries from the front end
-Version: 1.1.6
+Version: 1.1.7
 Author: 13pixar
 Author URI: http://13pixlar.se
 */
@@ -21,7 +21,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.1.6";
+        protected $_version = "1.1.7";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -213,7 +213,12 @@ if (class_exists("GFForms")) {
                     $current_user_id = $user_id;
                 }else{
                     $current_user = wp_get_current_user();
-                    $current_user_id = $current_user->ID;    
+                    $current_user_id = $current_user->ID;
+
+                    
+                    if( $current_user_id == NULL && function_exists(bp_loggedin_user_id()) ) {
+                        $current_user_id = bp_loggedin_user_id();
+                    }
                 }
 
                 //Set max nr of entries to be shown
@@ -338,7 +343,7 @@ if (class_exists("GFForms")) {
                                 }
 
                                 
-                                if($field->type == "post_custom_field" && $field->inputType == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
+                                if($field["type"] == "post_custom_field" && $field["inputType"] == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
 
                                 
                                 if(is_array($field_value)) {
@@ -355,7 +360,7 @@ if (class_exists("GFForms")) {
                                 }
 
                                 
-                                elseif ($field["type"] == "fileupload" || $field["type"] == "post_image" || $custom_file_upload = true ) {
+                                elseif ($field["type"] == "fileupload" || $field["type"] == "post_image" || $custom_file_upload == true ) {
 
                                     $field_value = strtok($field_value, "|");
                                     $file_name = basename($field_value);
@@ -749,8 +754,8 @@ if (class_exists("GFForms")) {
 
                 
 
-                if($field->type == "post_custom_field" && $field->inputType == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
-                if($field->type == 'fileupload' || $field->type == "post_image"|| $custom_file_upload == true) {
+                if($field["type"] == "post_custom_field" && $field["inputType"] == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
+                if($field["type"] == 'fileupload' || $field["type"] == "post_image"|| $custom_file_upload == true) {
                     
                     
                     if(rgpost("file_{$field['id']}") != "") {
@@ -796,8 +801,8 @@ if (class_exists("GFForms")) {
                 delete_post_meta($post_id, "_gform-form-id");
                 $form_fields = $form["fields"];
                 foreach ($form_fields as $form_field) {
-                    if($form_field->type == "post_custom_field") {
-                        delete_post_meta($post_id, $form_field->postCustomFieldName);
+                    if($form_field["type"] == "post_custom_field") {
+                        delete_post_meta($post_id, $form_field["postCustomFieldName"]);
                     }
                 }
 
@@ -957,16 +962,16 @@ if (class_exists("GFForms")) {
             foreach ($form["fields"] as $key => $value) {
 
                 
-                if($value->label == "") {
-                    $label = __('Field ','sticky-list') . $value->id;
+                if($value["label"] == "") {
+                    $label = __('Field ','sticky-list') . $value["id"];
                 }else{
-                    $label = $value->label;
+                    $label = $value["label"];
                 }
                 $fields_array = array_merge(
                     array(
                         array(
                             "label" => $label,
-                            "value" => $value->id
+                            "value" => $value["id"]
                         )
                     ),$fields_array
                 );
@@ -1457,9 +1462,13 @@ if (class_exists("GFForms")) {
                         $confirmation_type = "";
                     }
 
+
+
                     
                     if( $confirmation_type == $_POST["action"] || $confirmation_type == "all" || !isset($confirmation["stickylist_confirmation_type"])) {
                         
+                        
+
                         
                         if($confirmation["type"] == "message") {
                             $new_confirmation .= $confirmation["message"] . " ";
@@ -1472,8 +1481,10 @@ if (class_exists("GFForms")) {
                     }             
                 }
 
+
                 
-                $new_confirmation = GFCommon::replace_variables($new_confirmation, $form, $lead);
+                if(!isset($new_confirmation["redirect"]) )
+                    $new_confirmation = GFCommon::replace_variables($new_confirmation, $form, $lead);
 
                 return $new_confirmation;
 
