@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.2";
+        protected $_version = "1.2.1";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -31,7 +31,7 @@ if (class_exists("GFForms")) {
             add_filter("gform_tooltips", array( $this, "add_stickylist_tooltips"));
 
             
-            add_action("wp_enqueue_scripts", array( $this, "register_plugin_styles"));
+            add_action("wp_enqueue_scripts", array( $this, "register_plugin_styles"), 5);
 
             
             add_filter("gform_pre_render", array($this,"pre_entry_action"));
@@ -349,7 +349,24 @@ if (class_exists("GFForms")) {
                                 if($field["type"] == "post_custom_field" && $field["inputType"] == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
 
                                 
-                                if(is_array($field_value)) {
+                                if ($field["type"] == "product" || $field["type"] == "shipping") {
+                                    
+                                    
+                                    if(is_array($field_value)) {
+                                        
+                                        
+                                        $field_value = end($field_value);
+                                        $list_html .= "<td class='sort-$i $nowrap'>$field_value</td>";
+                                    }else{
+
+                                        
+                                        $field_value = substr($field_value, 0, strpos($field_value, "|"));
+                                        $list_html .= "<td class='sort-$i $nowrap'>$field_value</td>";
+                                    }
+                                }
+
+                                
+                                elseif(is_array($field_value)) {
 
                                     
                                     ksort($field_value);
@@ -438,7 +455,7 @@ if (class_exists("GFForms")) {
                                 if($enable_postlink && $entry["post_id"] != NULL) {
 
                                     $permalink = get_permalink($entry["post_id"]);
-                                    $list_html .= "<button onclick='document.location.href=\"$permalink\"'>$link_label</button>";
+                                    $list_html .= "<button class='submit' onclick='document.location.href=\"$permalink\"'>$link_label</button>";
                                 }
 
                             $list_html .= "</td>";
