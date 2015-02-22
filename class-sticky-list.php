@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.2.1";
+        protected $_version = "1.2.2";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -349,14 +349,28 @@ if (class_exists("GFForms")) {
                                 if($field["type"] == "post_custom_field" && $field["inputType"] == "fileupload") { $custom_file_upload = true; }else{ $custom_file_upload = false; }
 
                                 
-                                if ($field["type"] == "product" || $field["type"] == "shipping") {
+                                if ($field["type"] == "product" || $field["type"] == "shipping" || $field["type"] == "option") {
                                     
                                     
                                     if(is_array($field_value)) {
+
                                         
+                                        if($field["type"] == "option") {
+
+                                            
+                                            foreach ($field_value as &$option) {
+                                                $option = substr($option, 0, strpos($option, "|"));
+                                            }
+                                            $field_value = implode(", ", $field_value);
                                         
-                                        $field_value = end($field_value);
+                                        }else{
+
+                                            
+                                            $field_value = end($field_value); 
+                                        }
+                                        
                                         $list_html .= "<td class='sort-$i $nowrap'>$field_value</td>";
+
                                     }else{
 
                                         
@@ -604,6 +618,7 @@ if (class_exists("GFForms")) {
                                 $uploads[] = $fvalue["id"];
                             }
                         }
+                        if (!isset($uploads)) $uploads = "";
 
                         
                         $upload_inputs = "";
