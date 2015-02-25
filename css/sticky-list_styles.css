@@ -1,0 +1,71 @@
+/* sticky-list styles */
+
+/* Make the action buttons aligned to the right */
+table.sticky-list th.sticky-action,
+table.sticky-list td.sticky-action  {
+	text-align: right;
+    white-space:nowrap;
+}
+
+/* Do not wrap text in the table header */
+table.sticky-list th,
+table.sticky-list .sticky-nowrap {
+    white-space:nowrap;
+}
+
+/* Make every other row in the list slightly grey */
+table.sticky-list tr:nth-child(2n+2) {
+	background: #f7f7f7;
+}
+
+table.sticky-list,
+table.sticky-list * {
+	border: none;
+}
+
+table.sticky-list form,
+table.sticky-list button,
+table.sticky-list form input {
+	display: inline-block !important;
+}
+
+/* Style the action buttons */
+table.sticky-list button {
+    background:none!important;
+    border:none; 
+    padding:0!important;
+    cursor: pointer;
+    font-style: normal;
+    font-weight: normal;   
+    text-transform: none;
+    font-size: inherit;
+    color: inherit;
+    margin-left: 5px;
+    text-decoration: underline;
+}
+
+/* Pagination styles */
+#sticky-list-wrapper ul.pagination {
+    list-style: none;
+    margin: 0;
+}
+#sticky-list-wrapper ul.pagination li {
+    display: inline-block;
+    margin-right: 5px;
+}
+#sticky-list-wrapper ul.pagination li.active a,
+#sticky-list-wrapper ul.pagination li.disabled a {
+    color: inherit;
+    text-decoration: none;
+    cursor: default;
+}
+
+/* Upload field styles */
+div[class^="file_"] .remove-entry {
+    cursor: pointer;
+}
+div[class^="file_"] + input[type="file"] {
+    display: none;
+}
+
+
