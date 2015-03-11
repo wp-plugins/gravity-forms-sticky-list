@@ -374,6 +374,9 @@ if (class_exists("GFForms")) {
                                 $field_value = RGFormsModel::get_lead_field_value( $entry, $field );
 
                                 
+                                $tdClass = "stickylist-" . $field["type"];
+
+                                
                                 $nowrap = "";
                                 if(isset($field["stickylistFieldNoWrap"]) && $field["stickylistFieldNoWrap"] != "") {
                                     $nowrap = " sticky-nowrap";
@@ -406,13 +409,13 @@ if (class_exists("GFForms")) {
                                             $field_value = end($field_value); 
                                         }
                                         
-                                        $list_html .= "<td class='sort-$i $nowrap'>$field_value</td>";
+                                        $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_value</td>";
 
                                     }else{
 
                                         
                                         $field_value = substr($field_value, 0, strpos($field_value, "|"));
-                                        $list_html .= "<td class='sort-$i $nowrap'>$field_value</td>";
+                                        $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_value</td>";
                                     }
                                 }
 
@@ -427,7 +430,7 @@ if (class_exists("GFForms")) {
                                     foreach ($field_value as $field => $value) {
                                         $field_values .= $value . " ";
                                     }
-                                    $list_html .= "<td class='sort-$i $nowrap'>$field_values</td>";
+                                    $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_values</td>";
                                 }
 
                                 
@@ -438,21 +441,21 @@ if (class_exists("GFForms")) {
 
                                     
                                     if($enable_clickable) {
-                                        $list_html .= "<td class='sort-$i $nowrap'><a href='$field_value'>$file_name</a></td>";
+                                        $list_html .= "<td class='sort-$i $nowrap $tdClass'><a href='$field_value'>$file_name</a></td>";
                                     }else{
-                                        $list_html .= "<td class='sort-$i $nowrap'>$file_name</td>";
+                                        $list_html .= "<td class='sort-$i $nowrap $tdClass'>$file_name</td>";
                                     }
                                 }
 
                                 
                                 elseif ($field["type"] == "date" && $field_value != "") {
                                     $field_value = $this->format_the_date($field_value,$field["dateFormat"]);
-                                    $list_html .= "<td class='sort-$i $nowrap'>$field_value</td>";
+                                    $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_value</td>";
                                 }
 
                                 
                                 else{ 
-                                    $list_html .= "<td class='sort-$i $nowrap'>$field_value</td>";
+                                    $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_value</td>";
                                 }
 
                                 
