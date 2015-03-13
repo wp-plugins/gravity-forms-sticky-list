@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.2.6";
+        protected $_version = "1.2.7";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -193,8 +193,9 @@ if (class_exists("GFForms")) {
          */
         function stickylist_shortcode( $atts ) {
             $shortcode_id = shortcode_atts( array(
-                'id' => '1',
-                'user' => '',
+                'id'        => '1',
+                'user'      => '',
+                'showto'    => ''
             ), $atts );
 
             
@@ -202,6 +203,9 @@ if (class_exists("GFForms")) {
 
             
             $user_id = $shortcode_id['user'];
+
+            
+            $showto = $shortcode_id['showto'];
 
             
             $form = GFAPI::get_form($form_id);
@@ -247,6 +251,9 @@ if (class_exists("GFForms")) {
 
             
             if(isset($settings["custom_embedd_page"]) && $settings["custom_embedd_page"] != "") $embedd_page = $settings["custom_embedd_page"];
+
+            
+            if(isset($showto) && $showto != "") $show_entries_to = $showto;
             
             
             if($enable_list){
@@ -294,7 +301,7 @@ if (class_exists("GFForms")) {
                     }
                 
                 
-                }else{
+                }elseif($show_entries_to === "everyone"){
                 
                     $search_criteria["field_filters"][] = array("key" => "status", "value" => "active");
                     $entries = GFAPI::get_entries($form_id, $search_criteria, $sorting, $paging);
