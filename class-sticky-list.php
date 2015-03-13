@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.2.5";
+        protected $_version = "1.2.6";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -451,6 +451,12 @@ if (class_exists("GFForms")) {
                                 elseif ($field["type"] == "date" && $field_value != "") {
                                     $field_value = $this->format_the_date($field_value,$field["dateFormat"]);
                                     $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_value</td>";
+                                }
+
+                                
+                                elseif ($field["type"] == "website" && $field_value != "") {
+                                    $tdClass = "stickylist-url";
+                                    $list_html .= "<td class='sort-$i $nowrap $tdClass'><a href='$field_value'>$field_value</a></td>";
                                 }
 
                                 
@@ -1022,7 +1028,7 @@ if (class_exists("GFForms")) {
                 $('#gaddon-setting-row-header-3 h4').html('<?php _e("Sort & search","sticky-list"); ?>')
                 $('#gaddon-setting-row-header-4 h4').html('<?php _e("Pagination","sticky-list"); ?>')
                 $('#gaddon-setting-row-header-5 h4').html('<?php _e("Donate","sticky-list"); ?>')
-                $('#gaddon-setting-row-donate .donate-text').html('<?php _e("Sticky List is completely free. But if you like, you can always <a target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8R393YVXREFN6\">donate</a> a few bucks.","sticky-list"); ?>')
+                $('#gaddon-setting-row-donate .donate-text').html('<?php _e("Sticky List is completely free. But if you like, you can always <a target=\"_blank\" href=\"https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8R393YVXREFN6\">donate</a> a few bucks.","sticky-list"); ?> <img class=\"heart\" src=\"http://13pixlar.se/heart.png\">')
              });
             </script>
             <?php
