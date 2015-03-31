@@ -361,7 +361,9 @@ if (class_exists("GFForms")) {
                                 $label = $field["label"];
                             }
                             
-                            $list_html .= "<th class='sort' data-sort='sort-$i'>$label</th>";
+                            $class_label = "header-" . str_replace(" ", "-", strtolower($label));
+                            
+                            $list_html .= "<th class='sort $class_label' data-sort='sort-$i'>$label</th>";
 
                             
                             $i++;
