@@ -1,0 +1,10 @@
+tr + tr {
+    display: none;
+}
+.show,
+tr:last-child { 
+    display: table-row;
+}
+img.heart {
+	vertical-align: sub;
+}
