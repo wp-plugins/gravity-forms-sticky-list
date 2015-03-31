@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.2.9";
+        protected $_version = "1.2.10";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -189,6 +189,20 @@ if (class_exists("GFForms")) {
             return $current_user_id;
         }
 
+
+        /**
+         * Helper function to get form settings
+         *
+         */
+        function get_sticky_setting($setting_key, $settings) {
+            if(isset($settings[$setting_key])) {
+                $setting = $settings[$setting_key];
+            }else{
+                $setting = "";
+            }
+            return $setting;
+        }
+
       
         /**
          * Sticky List shortcode function
@@ -214,43 +228,33 @@ if (class_exists("GFForms")) {
             $form = GFAPI::get_form($form_id);
 
             
-            function get_sticky_setting($setting_key, $settings) {
-                if(isset($settings[$setting_key])) {
-                    $setting = $settings[$setting_key];
-                }else{
-                    $setting = "";
-                }
-                return $setting;
-            }
-
-            
             $settings = $this->get_form_settings($form);
 
             
-            $enable_list            = get_sticky_setting("enable_list", $settings);
-            $show_entries_to        = get_sticky_setting("show_entries_to", $settings);
-            $max_entries            = get_sticky_setting("max_entries", $settings);
-            $enable_clickable       = get_sticky_setting("enable_clickable", $settings);
-            $enable_postlink        = get_sticky_setting("enable_postlink", $settings);
-            $link_label             = get_sticky_setting("link_label", $settings);
-            $enable_view            = get_sticky_setting("enable_view", $settings);
-            $enable_view_label      = get_sticky_setting("enable_view_label", $settings);
-            $enable_edit            = get_sticky_setting("enable_edit", $settings);
-            $enable_edit_label      = get_sticky_setting("enable_edit_label", $settings);
-            $enable_delete          = get_sticky_setting("enable_delete", $settings);
-            $enable_delete_label    = get_sticky_setting("enable_delete_label", $settings);
-            $confirm_delete         = get_sticky_setting("confirm_delete", $settings);
-            $confirm_delete_text    = get_sticky_setting("confirm_delete_text", $settings);
-            $enable_duplicate       = get_sticky_setting("enable_duplicate", $settings);
-            $enable_duplicate_label = get_sticky_setting("enable_duplicate_label", $settings);
-            $action_column_header   = get_sticky_setting("action_column_header", $settings);
-            $enable_sort            = get_sticky_setting("enable_sort", $settings);
-            $initial_sort           = get_sticky_setting("initial_sort", $settings);
-            $initial_sort_direction = get_sticky_setting("initial_sort_direction", $settings);
-            $enable_search          = get_sticky_setting("enable_search", $settings);
-            $embedd_page            = get_sticky_setting("embedd_page", $settings);
-            $enable_pagination      = get_sticky_setting("enable_pagination", $settings);
-            $page_entries           = get_sticky_setting("page_entries", $settings);
+            $enable_list            = $this->get_sticky_setting("enable_list", $settings);
+            $show_entries_to        = $this->get_sticky_setting("show_entries_to", $settings);
+            $max_entries            = $this->get_sticky_setting("max_entries", $settings);
+            $enable_clickable       = $this->get_sticky_setting("enable_clickable", $settings);
+            $enable_postlink        = $this->get_sticky_setting("enable_postlink", $settings);
+            $link_label             = $this->get_sticky_setting("link_label", $settings);
+            $enable_view            = $this->get_sticky_setting("enable_view", $settings);
+            $enable_view_label      = $this->get_sticky_setting("enable_view_label", $settings);
+            $enable_edit            = $this->get_sticky_setting("enable_edit", $settings);
+            $enable_edit_label      = $this->get_sticky_setting("enable_edit_label", $settings);
+            $enable_delete          = $this->get_sticky_setting("enable_delete", $settings);
+            $enable_delete_label    = $this->get_sticky_setting("enable_delete_label", $settings);
+            $confirm_delete         = $this->get_sticky_setting("confirm_delete", $settings);
+            $confirm_delete_text    = $this->get_sticky_setting("confirm_delete_text", $settings);
+            $enable_duplicate       = $this->get_sticky_setting("enable_duplicate", $settings);
+            $enable_duplicate_label = $this->get_sticky_setting("enable_duplicate_label", $settings);
+            $action_column_header   = $this->get_sticky_setting("action_column_header", $settings);
+            $enable_sort            = $this->get_sticky_setting("enable_sort", $settings);
+            $initial_sort           = $this->get_sticky_setting("initial_sort", $settings);
+            $initial_sort_direction = $this->get_sticky_setting("initial_sort_direction", $settings);
+            $enable_search          = $this->get_sticky_setting("enable_search", $settings);
+            $embedd_page            = $this->get_sticky_setting("embedd_page", $settings);
+            $enable_pagination      = $this->get_sticky_setting("enable_pagination", $settings);
+            $page_entries           = $this->get_sticky_setting("page_entries", $settings);
 
             
             if(isset($settings["custom_embedd_page"]) && $settings["custom_embedd_page"] != "") $embedd_page = $settings["custom_embedd_page"];
@@ -330,7 +334,7 @@ if (class_exists("GFForms")) {
                     $entries = apply_filters( 'filter_entries', $entries );
                     
                     
-                    $list_html = "<div id='sticky-list-wrapper'>";
+                    $list_html = "<div id='sticky-list-wrapper_$form_id'>";
                     
                     
                     if($enable_sort && $enable_search) {
@@ -591,15 +595,15 @@ if (class_exists("GFForms")) {
 
                         
                         if($enable_sort && $enable_pagination) {
-                            $list_html .= "<script>var options = { valueNames: [$sort_fileds], page: $page_entries, plugins: [ ListPagination({ outerWindow: 1 }) ] };var userList = new List('sticky-list-wrapper', options); function callback() { window.listUpdated() } userList.on('updated', callback);</script><style>table.sticky-list th:not(.sticky-action) {cursor: pointer;}</style>";
+                            $list_html .= "<script>var options = { valueNames: [$sort_fileds], page: $page_entries, plugins: [ ListPagination({ outerWindow: 1 }) ] };var userList = new List('sticky-list-wrapper_$form_id', options); function callback() { window.listUpdated() } userList.on('updated', callback);</script><style>table.sticky-list th:not(.sticky-action) {cursor: pointer;}</style>";
                         
                         
                         }elseif($enable_sort && !$enable_pagination) {
-                            $list_html .= "<script>var options = { valueNames: [$sort_fileds] };var userList = new List('sticky-list-wrapper', options);</script><style>table.sticky-list th:not(.sticky-action) {cursor: pointer;}</style>";
+                            $list_html .= "<script>var options = { valueNames: [$sort_fileds] };var userList = new List('sticky-list-wrapper_$form_id', options);</script><style>table.sticky-list th:not(.sticky-action) {cursor: pointer;}</style>";
                         
                         
                         }elseif(!$enable_sort && $enable_pagination) {                 
-                            $list_html .= "<script>var options = { valueNames: ['xxx'], page: $page_entries, plugins: [ ListPagination({ outerWindow: 1 }) ] };var userList = new List('sticky-list-wrapper', options); function callback() { window.listUpdated() } userList.on('updated', callback);</script></style>";
+                            $list_html .= "<script>var options = { valueNames: ['xxx'], page: $page_entries, plugins: [ ListPagination({ outerWindow: 1 }) ] };var userList = new List('sticky-list-wrapper_$form_id', options); function callback() { window.listUpdated() } userList.on('updated', callback);</script></style>";
                         }
                     }
 
