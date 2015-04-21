@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.2.11";
+        protected $_version = "1.2.12";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -851,6 +851,13 @@ if (class_exists("GFForms")) {
                         $entry["is_read"] = $original_entry["is_read"];
                         $entry["is_starred"] = $original_entry["is_starred"];
                         $entry["created_by"] = $original_entry["created_by"];
+
+                        
+                        foreach ($form["fields"] as $field) {
+                            if($field["adminOnly"] == true) {
+                                $entry[$field["id"]] = $original_entry[$field["id"]];
+                            }
+                        }
 
                         
                         foreach ($_POST as $key => &$value) {
