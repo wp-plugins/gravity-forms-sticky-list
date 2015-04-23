@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.2.12";
+        protected $_version = "1.2.13";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -484,6 +484,13 @@ if (class_exists("GFForms")) {
                                 }
 
                                 
+                                elseif ($field["type"] == "post_category" && $field_value != "") {
+                                    $tdClass = "stickylist-category";
+                                    $field_value = strtok($field_value, ":");
+                                    $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_value</td>";
+                                }
+
+                                
                                 else{ 
                                     $list_html .= "<td class='sort-$i $nowrap $tdClass'>$field_value</td>";
                                 }
@@ -724,6 +731,13 @@ if (class_exists("GFForms")) {
                         if (!isset($uploads)) $uploads = "";
 
                         
+                        foreach ($form["fields"] as $fkey => &$fvalue) {
+                            if($fvalue["type"] == 'post_category') {
+                                $categories[] = $fvalue["id"];
+                            }
+                        }
+
+                        
                         $upload_inputs = "";
                      
                         
@@ -739,11 +753,15 @@ if (class_exists("GFForms")) {
                                 }
 
                                 
+                                if (is_array($categories) && in_array( $key, $categories ) ) {
+                                    $value = substr( $value, strpos( $value, ':') + 1);                              
+                                }
+
+                                
                                 $new_key = str_replace(".", "_", "input_$key");
                                 $form_fields[$new_key] = $form_fields[$key];
 
                                 
-                                $form_id = $form["id"];
                                 if (is_array($uploads) && in_array( $key, $uploads ) ) {
                                     if ($value != "") {
 
