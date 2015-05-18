@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: gravity forms, edit, list, delete
 Requires at least: 3.0.1
 Tested up to: 4.2.2
-Stable tag: 1.3.0.1
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,7 +40,6 @@ Sticky List is an add-on for the WordPress plugin <a href="http://www.gravityfor
 
 * Support for multi page forms
 * Support for multiple uploads in file field
-* Support for GF 1.9 "Save and Continue" functionallity
 
 #### Usage
 
@@ -130,9 +129,6 @@ There is a fully documented version of the plugin on the <a href="https://github
 
 #### Known issues
 
-**The "Save & continue" feature in Gravity Forms 1.9 is not supported**<br>
-This will be addressed in a future version of Sticky List.
-
 **Sticky List does not currently support multi page forms**<br>
 This functionallity will be added in a future version of Sticky List.
 
@@ -217,6 +213,10 @@ Then create a field in your form with a checkbox that says "Approved". Note the 
 5. Front end list 
 
 == Changelog ==
+
+= 1.3.1 =
+* Added support for "Save & continue"
+* Fixed a bug where duplicate entries would not work
 
 = 1.3.0.1 =
 * Fixed a bug where notifications were not sent

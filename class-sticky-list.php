@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.3.0.1";
+        protected $_version = "1.3.1";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -563,15 +563,12 @@ if (class_exists("GFForms")) {
                                 
                                 if($enable_duplicate) {
 
-                                    
-                                    if($entry["created_by"] == $this->stickylist_get_current_user() || current_user_can('publish_posts')) {
-                                        $list_html .= "
-                                            <form action='$embedd_page' method='post'>
-                                                <button class='sticky-list-duplicate submit'>$enable_duplicate_label</button>
-                                                <input type='hidden' name='mode' value='duplicate'>
-                                                <input type='hidden' name='duplicate_id' value='$entry_id'>
-                                            </form>";
-                                    }
+                                    $list_html .= "
+                                        <form action='$embedd_page' method='post'>
+                                            <button class='sticky-list-duplicate submit'>$enable_duplicate_label</button>
+                                            <input type='hidden' name='mode' value='duplicate'>
+                                            <input type='hidden' name='duplicate_id' value='$entry_id'>
+                                        </form>";
                                 }
 
                             $list_html .= "</td>";
@@ -731,16 +728,12 @@ if (class_exists("GFForms")) {
                                 $uploads[] = $fvalue["id"];
                             }elseif ($fvalue["type"] == "post_custom_field" && $fvalue["inputType"] == "fileupload") {
                                 $uploads[] = $fvalue["id"];
+                            }elseif ($fvalue["type"] == 'post_category') {
+                                $categories[] = $fvalue["id"];  
                             }
                         }
                         if (!isset($uploads)) $uploads = "";
-
-                        
-                        foreach ($form["fields"] as $fkey => &$fvalue) {
-                            if($fvalue["type"] == 'post_category') {
-                                $categories[] = $fvalue["id"];
-                            }
-                        }
+                        if (!isset($categories)) $categories = "";
 
                         
                         $upload_inputs = "";
@@ -1366,7 +1359,7 @@ if (class_exists("GFForms")) {
                             "label"   => __('Confirm delete','sticky-list'),
                             "type"    => "checkbox",
                             "name"    => "confirm_delete",
-                            "tooltip" => __('Check this box require deletions to be confirmed by clicking OK in a dialog box','sticky-list'),
+                            "tooltip" => __('Check this box to require deletions to be confirmed by clicking OK in a dialog box','sticky-list'),
                             "choices" => array(
                                 array(
                                     "label" => __('Enabled','sticky-list'),
@@ -1667,7 +1660,7 @@ if (class_exists("GFForms")) {
 
             $settings = $this->get_form_settings($form);
 
-            if(isset($settings["enable_list"]) && true == $settings["enable_list"]){
+            if(isset($settings["enable_list"]) && true == $settings["enable_list"] && !isset($confirmation["event"])){
 
                 
                 $type = rgar( $confirmation, 'stickylist_confirmation_type' );
@@ -1754,22 +1747,27 @@ if (class_exists("GFForms")) {
                     if( $confirmation_type == $_POST["action"] || $confirmation_type == "all" || !isset($confirmation["stickylist_confirmation_type"])) {
                         
                         
-                        if($confirmation["type"] == "message") {
-                            $new_confirmation .= $confirmation["message"] . " ";
+                        if (!isset($confirmation["event"])) {
+                            
+                            
+                            if($confirmation["type"] == "message") {
+                                $new_confirmation .= $confirmation["message"] . " ";
 
-                        
-                        }else{
-                            $new_confirmation = $original_confirmation;
-                            break;
+                            
+                            }else{
+                                $new_confirmation = $original_confirmation;
+                                break;
+                            }
                         }
-                    }             
+                    }        
                 }
-
 
                 
                 if(!isset($new_confirmation["redirect"]) ) {
+
                     $new_confirmation = GFCommon::replace_variables($new_confirmation, $form, $lead);
-                    return '<div id="gform_confirmation_message_' . $form["id"] . '" class="gform_confirmation_message_' . $form["id"] . ' gform_confirmation_message">' . $new_confirmation . '</div>';;
+                    $new_confirmation = '<div id="gform_confirmation_message_' . $form["id"] . '" class="gform_confirmation_message_' . $form["id"] . ' gform_confirmation_message">' . $new_confirmation . '</div>';
+                    return $new_confirmation;
                 }else{
                     return $new_confirmation;
                 }
