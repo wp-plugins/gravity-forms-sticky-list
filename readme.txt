@@ -168,6 +168,14 @@ Make sure that the plugin is activated **and** that your Gravity Forms version i
 
 Make sure that your user/role has the correct capabilities. You can use a <a href="https://wordpress.org/plugins/user-role-editor/">role editor plugin</a> to check this. The capabilities you are looking for are `gravityforms_stickylist` and `gravityforms_stickylist_uninstall`.
 
+= File uploads can't be edited =
+
+Sticky List does not support multi file uploads (where you can upload multiple files to a single field). Multi file uploads are in the roadmap for a future release. In the meantime you can use single file uploads which are supported.
+
+= Why can't I  edit my multi page entries? =
+
+Multi page forms are not yet supported. This feature is the roadmap for a future release. Only single page forms are supported at this time.
+
 = How can I add the entry ID to the list? =
 
 Add a field to your form and note the ID of that field and then add this code to your functions.php
