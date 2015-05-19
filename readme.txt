@@ -176,6 +176,31 @@ Sticky List does not support multi file uploads (where you can upload multiple f
 
 Multi page forms are not yet supported. This feature is the roadmap for a future release. Only single page forms are supported at this time.
 
+= Can I display a thumbnail/icon instead of the file name in the list? =
+
+This can be done using jQuery.
+
+Thumbnail:
+
+`
+jQuery(document).ready(function($) {
+    cell = $('.stickylist-fileupload a');
+    image = cell.attr('href');
+    cell.html('<img width="100" src="' + image + '">');
+});
+`
+
+Icon:
+
+`
+jQuery(document).ready(function($) {
+    cell = $('.stickylist-fileupload a');
+    cell.html('<img width="100" src="path/to/icon.png">');
+});
+`
+
+Note that you might want to tweak the code above a little to fit your needs.
+
 = How can I add the entry ID to the list? =
 
 Add a field to your form and note the ID of that field and then add this code to your functions.php
