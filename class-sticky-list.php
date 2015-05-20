@@ -4,7 +4,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.3.1";
+        protected $_version = "1.3.2";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -469,7 +469,7 @@ if (class_exists("GFForms")) {
                                     $file_name = basename($field_value);
 
                                     
-                                    if($enable_clickable) {
+                                    if($enable_clickable && $field_value != "") {
                                         $list_html .= "<td class='sort-$i $nowrap $tdClass'><a href='$field_value'>$file_name</a></td>";
                                     }else{
                                         $list_html .= "<td class='sort-$i $nowrap $tdClass'>$file_name</td>";

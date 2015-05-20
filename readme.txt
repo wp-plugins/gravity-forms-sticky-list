@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: gravity forms, edit, list, delete
 Requires at least: 3.0.1
 Tested up to: 4.2.2
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,8 +185,10 @@ Thumbnail:
 `
 jQuery(document).ready(function($) {
     cell = $('.stickylist-fileupload a');
-    image = cell.attr('href');
-    cell.html('<img width="100" src="' + image + '">');
+    cell.each(function(index) {
+        image = $(this).attr('href');
+        $(this).html('<img width="50" src="' + image + '">');
+    });
 });
 `
 
@@ -195,7 +197,9 @@ Icon:
 `
 jQuery(document).ready(function($) {
     cell = $('.stickylist-fileupload a');
-    cell.html('<img width="100" src="path/to/icon.png">');
+    cell.each(function(index) {
+        $(this).html('<img width="50" src="path/to/icon.jpg">');
+    });
 });
 `
 
