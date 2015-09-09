@@ -3,8 +3,8 @@ Contributors: fried_eggz
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8R393YVXREFN6
 Tags: gravity forms, edit, list, delete
 Requires at least: 3.0.1
-Tested up to: 4.2.4
-Stable tag: 1.3.4
+Tested up to: 4.3
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,7 @@ Sticky List is an add-on for the WordPress plugin <a href="http://www.gravityfor
 * Display a list of entries on the front end
 * Choose who can se the list; specific role, entry creator, all logged in users or anyone.
 * Support for (almost) all Gravity Forms fields
+* Multi page form support
 * Create/edit/delete Wordpress posts from the front end
 * Conditional logic support
 * View, edit and delete existing entries from the front-end
@@ -38,7 +39,6 @@ Sticky List is an add-on for the WordPress plugin <a href="http://www.gravityfor
 
 #### Planned features
 
-* Support for multi page forms
 * Support for multiple uploads in file field
 
 #### Usage
@@ -133,14 +133,14 @@ There is a fully documented version of the plugin on the <a href="https://github
 
 #### Known issues
 
-**Sticky List does not currently support multi page forms**<br>
-This functionallity will be added in a future version of Sticky List.
-
 **Multiple file uploads in same field does not work**<br>
 This will be addressed in a future version of Sticky List.
 
 **Post image meta fields are not populated when editing an entry**<br>
 When editing an entry that has Wordpress Post Image Field the meta inputs are not populated with existing values. This is due to how Gravity Form saves the data. This issue wont get fixed unless Rocket Genious changes the way it handles these fields.
+
+**Not fully compatible with Gravity Forms "limit entries" and "No Duplicates" features**<br>
+When imposing a limit to the number of entries allowed for a form the edit functionallity will stop working when the limit is reached. The same issue affect usage of the No Duplicate feature. If using this feature on a form entry edits wont save unless you change the input.
 
 == Installation ==
 
@@ -175,10 +175,6 @@ Make sure that your user/role has the correct capabilities. You can use a <a hre
 = File uploads can't be edited =
 
 Sticky List does not support multi file uploads (where you can upload multiple files to a single field). Multi file uploads are in the roadmap for a future release. In the meantime you can use single file uploads which are supported.
-
-= Why can't I  edit my multi page entries? =
-
-Multi page forms are not yet supported. This feature is the roadmap for a future release. Only single page forms are supported at this time.
 
 = Can I display a thumbnail/icon instead of the file name in the list? =
 
@@ -254,6 +250,12 @@ Then create a field in your form with a checkbox that says "Approved". Note the 
 5. Front end list 
 
 == Changelog ==
+
+= 1.4 =
+* Multi page support
+* Remove table header when last list item is deleted
+* Filter by empty value in shortcode
+* Better support for multiple lists in one page
 
 = 1.3.4 =
 * Added ability to filter entries via shortcode

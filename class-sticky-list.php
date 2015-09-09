@@ -11,7 +11,7 @@ if (class_exists("GFForms")) {
 
     class StickyList extends GFAddOn {
 
-        protected $_version = "1.3.4";
+        protected $_version = "1.4";
         protected $_min_gravityforms_version = "1.8.19.2";
         protected $_slug = "sticky-list";
         protected $_path = "gravity-forms-sticky-list/sticky-list.php";
@@ -344,7 +344,7 @@ if (class_exists("GFForms")) {
                 }
 
                 // If a filter is set in the shortcode we filter out all entries that do not match
-                if(!empty($entries) && $filterValue && $filterField) {
+                if(!empty($entries) && $filterField) {
                      foreach ($entries as $id => $data) {
                         if($data[$filterField] != $filterValue) {
                             unset($entries[$id]);
@@ -670,7 +670,7 @@ if (class_exists("GFForms")) {
 
                                 window.listUpdated = function(){
 
-                                    $('.sticky-list-delete').click(function(event) {
+                                    $('#sticky-list-wrapper_$form_id .sticky-list-delete').click(function(event) {
 
                                         event.stopImmediatePropagation()
                                     
@@ -695,7 +695,13 @@ if (class_exists("GFForms")) {
                                                     background: '#fbdcdc',
                                                     color: '#fff'
                                                 });
-                                                current_row.hide('slow');
+                                                current_row.hide('slow', function() {
+                                                    current_row.remove();
+                                                    remaining_rows = $('#sticky-list-wrapper_$form_id tbody tr');
+                                                    if(remaining_rows.length === 0) {
+                                                        $('#sticky-list-wrapper_$form_id table').html('" . $settings["empty_list_text"] . "');
+                                                    }
+                                                });
                                             })
                                             .fail(function() {
                                                 current_button.html('$delete_failed');
@@ -868,9 +874,9 @@ if (class_exists("GFForms")) {
                         });
                         </script>
                         <!-- End JQuery -->
-
+                        
                 <?php   // Add our manipulated fields to the $_POST variable
-                        $_POST = $form_fields;
+                        $_POST = array_merge($form_fields,$_POST);
                     }
                 }
             }
